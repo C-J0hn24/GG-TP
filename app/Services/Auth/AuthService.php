@@ -101,6 +101,10 @@ class AuthService
             return null;
         }
 
+        if (strtoupper((string) ($user->account_status ?? 'ACTIVE')) !== 'ACTIVE') {
+            return null;
+        }
+
         Auth::login($user, $remember);
 
         return $user;

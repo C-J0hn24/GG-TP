@@ -35,7 +35,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 portal_redirect('/trader/dashboard.php');
             }
             if ($error === '') {
-                $error = 'Invalid credentials or not a trader account.';
+                $error = 'Invalid credentials, inactive account, or trader approval pending.';
             }
         }
     }

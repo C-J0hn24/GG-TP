@@ -16,6 +16,15 @@ Route::get('/', function (CatalogService $catalogService) {
     ]);
 })->name('home');
 
+// Temporary timezone verification route. Remove after confirming correct app timezone and now() behavior.
+Route::get('/debug-timezone', function () {
+    return response()->json([
+        'app_timezone' => config('app.timezone'),
+        'now' => now()->toDateTimeString(),
+        'now_kathmandu' => now('Asia/Kathmandu')->toDateTimeString(),
+    ]);
+});
+
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
