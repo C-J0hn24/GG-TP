@@ -23,6 +23,7 @@
                 @auth
                     <a href="{{ route('profile.index') }}" class="nav-baskets @if(request()->routeIs('profile.*')) active @endif" @if(request()->routeIs('profile.*')) aria-current="page" @endif>Profile</a>
                     <a href="{{ route('orders.index') }}" class="nav-baskets @if(request()->routeIs('orders.*', 'checkout.*')) active @endif" @if(request()->routeIs('orders.*', 'checkout.*')) aria-current="page" @endif>Orders</a>
+                    <a href="{{ route('invoices.index') }}" class="nav-baskets @if(request()->routeIs('invoices.*')) active @endif" @if(request()->routeIs('invoices.*')) aria-current="page" @endif>Invoices</a>
                     <form method="post" action="{{ route('logout') }}" style="display:inline;">
                         @csrf
                         <button type="submit" class="btn btn-signup nav-login">Logout</button>

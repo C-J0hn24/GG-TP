@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Basket\AddBasketItemRequest;
+use App\Http\Requests\Basket\RemoveCartItemRequest;
 use App\Http\Requests\Basket\UpdateCartItemRequest;
 use App\Services\Basket\BasketService;
 use App\Services\Basket\GuestCartService;
@@ -87,5 +88,24 @@ class CartWebController extends Controller
         }
 
         return redirect()->route('cart');
+    }
+
+    public function removeItem(RemoveCartItemRequest $request): RedirectResponse
+    {
+        try {
+            if (Auth::check()) {
+                $basketItemId = (string) $request->validated('basket_item_id');
+                $this->basketService->removeItem(Auth::user(), $basketItemId);
+            } else {
+                $productId = (string) $request->validated('product_id');
+                $this->guestCart->setQuantity($productId, 0);
+            }
+        } catch (Throwable $e) {
+            return redirect()->route('cart')->withErrors([
+                'cart' => $e->getMessage() ?: 'Could not remove item.',
+            ]);
+        }
+
+        return redirect()->route('cart')->with('status', 'Item removed from your cart.');
     }
 }

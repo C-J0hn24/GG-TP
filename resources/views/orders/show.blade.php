@@ -11,7 +11,11 @@
                 <p class="orders-alert ok">{{ session('status') }}</p>
             @endif
 
-            <p class="orders-detail-back"><a href="{{ route('orders.index') }}">← Back to my orders</a></p>
+            <p class="orders-detail-back">
+                <a href="{{ route('orders.index') }}">← Back to my orders</a>
+                ·
+                <a href="{{ \App\Support\AppUrl::invoicePageUrl(['order_id' => $order->order_id]) }}">View invoice</a>
+            </p>
 
             @php
                 $slot = $order->collectionSlot;

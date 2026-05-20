@@ -22,6 +22,7 @@
         <td><span class="status-pill {{ $statusClass }}">{{ $statusLabel }}</span></td>
         <td><strong>{{ $amount }}</strong></td>
         <td class="orders-actions">
+            <a class="btn btn-outline btn-sm" href="{{ route('invoices.show', $order->order_id) }}">Invoice</a>
             <a class="btn btn-outline btn-sm" href="{{ route('orders.show', $order->order_id) }}">View</a>
             @if ($canCancel)
                 <form method="post" action="{{ route('orders.cancel', $order->order_id) }}" class="orders-inline-form" onsubmit="return confirm('Cancel this order?');">
@@ -61,7 +62,8 @@
         </dl>
 
         <footer class="order-card-actions">
-            <a class="btn btn-primary btn-sm" href="{{ route('orders.show', $order->order_id) }}">View details</a>
+            <a class="btn btn-primary btn-sm" href="{{ route('invoices.show', $order->order_id) }}">Invoice</a>
+            <a class="btn btn-outline btn-sm" href="{{ route('orders.show', $order->order_id) }}">Details</a>
             @if ($canCancel)
                 <form method="post" action="{{ route('orders.cancel', $order->order_id) }}" class="orders-inline-form" onsubmit="return confirm('Cancel this order?');">
                     @csrf

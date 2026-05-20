@@ -23,7 +23,6 @@
 
     <section class="section cart-section">
         <div class="container cart-layout">
-            {{-- 2. Table Layout (Product / Price / Quantity / Total) --}}
             <article class="card cart-table-card">
                 <header class="cart-table-header">
                     <h2>Items</h2>
@@ -55,6 +54,15 @@
                                 <tr class="cart-row">
                                     <td class="cart-product">
                                         <div class="cart-product-name">{{ $name }}</div>
+                                        <form method="post" action="{{ route('cart.remove') }}" class="cart-remove-form">
+                                            @csrf
+                                            @if (!empty($isGuest))
+                                                <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
+                                            @else
+                                                <input type="hidden" name="basket_item_id" value="{{ $item['basket_item_id'] }}">
+                                            @endif
+                                            <button type="submit" class="cart-remove-btn">Remove</button>
+                                        </form>
                                     </td>
                                     <td>
                                         <div class="cart-cell-strong">
@@ -62,29 +70,41 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="cart-qty-controls" aria-label="Quantity controls">
-                                            <form method="post" action="{{ route('cart.update') }}" class="cart-qty-form">
-                                                @csrf
-                                                @if (!empty($isGuest))
-                                                    <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
-                                                @else
-                                                    <input type="hidden" name="basket_item_id" value="{{ $item['basket_item_id'] }}">
-                                                @endif
-                                                <input type="hidden" name="quantity" value="{{ max(0, $qty - 1) }}">
-                                                <button type="submit" class="qty-btn" aria-label="Decrease quantity">−</button>
-                                            </form>
-                                            <span class="qty-display" aria-live="polite">{{ $qty }}</span>
-                                            <form method="post" action="{{ route('cart.update') }}" class="cart-qty-form">
-                                                @csrf
-                                                @if (!empty($isGuest))
-                                                    <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
-                                                @else
-                                                    <input type="hidden" name="basket_item_id" value="{{ $item['basket_item_id'] }}">
-                                                @endif
-                                                <input type="hidden" name="quantity" value="{{ min(20, $qty + 1) }}">
-                                                <button type="submit" class="qty-btn" aria-label="Increase quantity" @disabled($qty >= 20)>+</button>
-                                            </form>
-                                        </div>
+                                        <form method="post"
+                                              action="{{ route('cart.update') }}"
+                                              class="cart-qty-form cart-qty-form--main"
+                                              data-cart-qty-form>
+                                            @csrf
+                                            @if (!empty($isGuest))
+                                                <input type="hidden" name="product_id" value="{{ $item['product_id'] }}">
+                                            @else
+                                                <input type="hidden" name="basket_item_id" value="{{ $item['basket_item_id'] }}">
+                                            @endif
+                                            <div class="cart-qty-controls" aria-label="Quantity for {{ $name }}">
+                                                <button type="button"
+                                                        class="qty-btn qty-btn--minus"
+                                                        aria-label="Decrease quantity"
+                                                        @disabled($qty <= 1)>
+                                                    −
+                                                </button>
+                                                <label class="sr-only" for="cart-qty-{{ $item['product_id'] }}">Quantity</label>
+                                                <input id="cart-qty-{{ $item['product_id'] }}"
+                                                       type="number"
+                                                       name="quantity"
+                                                       class="qty-input cart-qty-input"
+                                                       value="{{ $qty }}"
+                                                       min="1"
+                                                       max="20"
+                                                       inputmode="numeric"
+                                                       required>
+                                                <button type="button"
+                                                        class="qty-btn qty-btn--plus"
+                                                        aria-label="Increase quantity"
+                                                        @disabled($qty >= 20)>
+                                                    +
+                                                </button>
+                                            </div>
+                                        </form>
                                     </td>
                                     <td>
                                         <div class="cart-cell-strong cart-cell-total">
@@ -104,7 +124,6 @@
                 </div>
             </article>
 
-            {{-- 3. Summary Section + 4. Note --}}
             <aside class="card cart-summary-card">
                 <header class="cart-summary-header">
                     <h2>Summary</h2>
@@ -126,9 +145,74 @@
                     <p class="cart-note" style="margin-top:10px;">You will be asked to sign in before payment.</p>
                 @endauth
 
-                <p class="cart-note">Maximum of 20 cart items</p>
+                <p class="cart-note">Maximum of 20 per product</p>
             </aside>
         </div>
     </section>
 @endsection
 
+@push('scripts')
+<script>
+(function () {
+    function clampQty(value) {
+        var n = parseInt(value, 10);
+        if (Number.isNaN(n)) {
+            return 1;
+        }
+        return Math.min(20, Math.max(1, n));
+    }
+
+    document.querySelectorAll('[data-cart-qty-form]').forEach(function (form) {
+        var input = form.querySelector('.cart-qty-input');
+        var minus = form.querySelector('.qty-btn--minus');
+        var plus = form.querySelector('.qty-btn--plus');
+        if (!input) {
+            return;
+        }
+
+        function syncButtons() {
+            var qty = clampQty(input.value);
+            if (minus) {
+                minus.disabled = qty <= 1;
+            }
+            if (plus) {
+                plus.disabled = qty >= 20;
+            }
+        }
+
+        if (minus) {
+            minus.addEventListener('click', function () {
+                input.value = clampQty(parseInt(input.value, 10) - 1);
+                syncButtons();
+                form.requestSubmit();
+            });
+        }
+
+        if (plus) {
+            plus.addEventListener('click', function () {
+                input.value = clampQty(parseInt(input.value, 10) + 1);
+                syncButtons();
+                form.requestSubmit();
+            });
+        }
+
+        input.addEventListener('change', function () {
+            input.value = clampQty(input.value);
+            syncButtons();
+            form.requestSubmit();
+        });
+
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                input.value = clampQty(input.value);
+                syncButtons();
+                form.requestSubmit();
+            }
+        });
+
+        syncButtons();
+    });
+})();
+</script>
+@endpush

@@ -209,17 +209,26 @@ class CheckoutWebController extends Controller
         $payload['paypal_capture_id'] = $this->payPalService->extractCaptureId($capture);
         $payload['paid_amount'] = $this->payPalService->extractCapturedAmount($capture);
 
-        $this->checkoutService->checkout(Auth::user(), $payload);
+        $result = $this->checkoutService->checkout(Auth::user(), $payload);
 
-        return redirect()->route('orders.index')
-            ->with('status', 'Order placed successfully. PayPal payment received.');
+        session()->flash(
+            'invoice_payment_success',
+            'Payment successful! Your order has been placed and your invoice is ready below.'
+        );
+
+        return redirect()->route('invoices.show', $result['order']->order_id);
     }
 
     /** Fallback when PayPal is not used (local dev). */
     public function checkout(CheckoutRequest $request): RedirectResponse
     {
-        $this->checkoutService->checkout(Auth::user(), $request->validated());
+        $result = $this->checkoutService->checkout(Auth::user(), $request->validated());
 
-        return redirect()->route('orders.index')->with('status', 'Order placed successfully.');
+        session()->flash(
+            'invoice_payment_success',
+            'Order placed successfully! Your invoice is ready below.'
+        );
+
+        return redirect()->route('invoices.show', $result['order']->order_id);
     }
 }

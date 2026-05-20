@@ -16,7 +16,7 @@ class StoreReviewRequest extends FormRequest
         return [
             'product_id' => ['sometimes', 'required', 'string', 'max:20'],
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'review_body' => ['required', 'string', 'max:1000'],
+            'review_body' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

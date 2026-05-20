@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\AuthWebController;
 use App\Http\Controllers\Web\CartWebController;
 use App\Http\Controllers\Web\CatalogWebController;
 use App\Http\Controllers\Web\CheckoutWebController;
+use App\Http\Controllers\Web\InvoiceWebController;
 use App\Http\Controllers\Web\OrderWebController;
 use App\Http\Controllers\Web\ProfileWebController;
 use App\Http\Controllers\Web\ReviewWebController;
@@ -62,6 +63,7 @@ Route::redirect('/traders', '/shops');
 Route::get('/cart', [CartWebController::class, 'index'])->name('cart');
 Route::post('/cart/items', [CartWebController::class, 'addItem'])->name('cart.add');
 Route::post('/cart/items/update', [CartWebController::class, 'updateItem'])->name('cart.update');
+Route::post('/cart/items/remove', [CartWebController::class, 'removeItem'])->name('cart.remove');
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/checkout/collection-slot', [CheckoutWebController::class, 'showSlotPicker'])->name('checkout.collection-slot');
@@ -76,6 +78,10 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/orders', [OrderWebController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderId}', [OrderWebController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/cancel', [OrderWebController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/invoices', [InvoiceWebController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{orderId}', [InvoiceWebController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{orderId}/export', [InvoiceWebController::class, 'export'])->name('invoices.export');
+    Route::get('/invoices/{orderId}/print', [InvoiceWebController::class, 'print'])->name('invoices.print');
     Route::post('/products/{id}/reviews', [ReviewWebController::class, 'store'])->name('products.reviews.store');
     Route::post('/reviews/{reviewId}/comments', [ReviewWebController::class, 'storeComment'])->name('reviews.comments.store');
 });

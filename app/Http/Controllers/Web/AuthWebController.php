@@ -39,6 +39,14 @@ class AuthWebController extends Controller
             return $this->redirectAfterLogin($request);
         }
 
+        $redirect = trim((string) $request->query('redirect', ''));
+        if ($redirect !== '' && str_starts_with($redirect, '/') && ! str_contains($redirect, '//')) {
+            $fixed = AppUrl::fixApplicationUrl($redirect);
+            if ($fixed !== null && $fixed !== '') {
+                session(['url.intended' => $fixed]);
+            }
+        }
+
         return view('auth.login', [
             'checkoutAfterLogin' => $request->boolean('checkout'),
         ]);

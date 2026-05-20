@@ -37,4 +37,20 @@ final class AppUrl
 
         return $scheme.'://'.$host.$port.$newPath.$query.$fragment;
     }
+
+    /**
+     * Standalone PHP invoice page (project root or public/invoice.php).
+     *
+     * @param  array<string, scalar|null>  $query
+     */
+    public static function invoicePageUrl(array $query = []): string
+    {
+        $base = rtrim((string) config('app.url'), '/');
+        $url = ($base !== '' ? $base : '').'/invoice.php';
+        if ($query !== []) {
+            $url .= '?'.http_build_query($query);
+        }
+
+        return $url;
+    }
 }

@@ -10,6 +10,10 @@ Options -Indexes
     # Live Oracle trader portal (project root trader-portal/, not public/trader-portal mock)
     RewriteRule ^trader-portal(?:/(.*))?$ trader-portal/$1 [L,QSA]
 
+    # Customer invoice (PHP + OCI8)
+    RewriteRule ^invoice\.php$ - [L]
+    RewriteRule ^customer/invoice\.php$ customer/invoice.php [L,QSA]
+
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ public/$1 [L]

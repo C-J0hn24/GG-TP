@@ -18,10 +18,12 @@ class ReviewWebController extends Controller
 
     public function store(StoreReviewRequest $request, string $id): RedirectResponse
     {
+        $body = trim((string) ($request->validated('review_body') ?? ''));
+
         $this->service->create(Auth::user(), [
             'product_id' => $id,
             'rating' => (int) $request->validated('rating'),
-            'review_body' => $request->validated('review_body'),
+            'review_body' => $body !== '' ? $body : null,
         ]);
 
         return redirect()

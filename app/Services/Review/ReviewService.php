@@ -40,10 +40,12 @@ class ReviewService
             ]);
         }
 
+        $body = isset($data['review_body']) ? trim((string) $data['review_body']) : '';
+
         return Review::create([
             'review_id' => OracleId::next('REVIEW', 'review_id', 'RE'),
             'rating' => $data['rating'],
-            'review_body' => $data['review_body'],
+            'review_body' => $body !== '' ? $body : null,
             'review_date' => now(),
             'customer_id' => $customer->customer_id,
             'product_id' => $productId,

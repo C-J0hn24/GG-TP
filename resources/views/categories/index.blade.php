@@ -3,7 +3,12 @@
 @section('title', 'GroceryGo - Categories')
 
 @section('content')
-    @include('partials.page-hero', ['title' => 'Categories'])
+    @include('partials.page-hero', [
+        'title' => 'Categories',
+        'subtitle' => 'Browse and filter products from local shops',
+        'show_search' => true,
+        'search_query' => $filters['q'] ?? '',
+    ])
 
     <section class="section">
         <div class="container categories-layout">
