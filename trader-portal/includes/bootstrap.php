@@ -12,6 +12,12 @@ if (!is_readable($configPath)) {
 
 require_once $configPath;
 
+if (! (defined('PORTAL_DISPLAY_ERRORS') && PORTAL_DISPLAY_ERRORS)) {
+    ini_set('display_errors', '0');
+    ini_set('log_errors', '1');
+    error_reporting(E_ALL);
+}
+
 if (session_status() === PHP_SESSION_NONE) {
     session_name(SESSION_NAME);
     $cookiePath = defined('APP_BASE') && APP_BASE !== '' ? APP_BASE : '/';

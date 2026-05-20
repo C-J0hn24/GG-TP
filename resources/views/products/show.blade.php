@@ -72,8 +72,19 @@
 
                 <h2 class="product-details-name">{{ $product->product_name }}</h2>
 
+                @php
+                    $pricing = \App\Support\ProductPricing::pricePayload($product);
+                @endphp
                 <div class="product-details-price-row">
-                    <div class="product-price-large">{{ \App\Support\Money::format((float) $product->price) }}</div>
+                    <div class="product-price-large">
+                        @if ($pricing['on_sale'])
+                            <span class="product-price-was">{{ \App\Support\Money::format($pricing['original']) }}</span>
+                            <span class="product-price-now">{{ \App\Support\Money::format($pricing['unit']) }}</span>
+                            <span class="product-sale-badge">{{ number_format((float) $pricing['rate'], 0) }}% off</span>
+                        @else
+                            {{ \App\Support\Money::format($pricing['unit']) }}
+                        @endif
+                    </div>
                     @if ($product->category?->category_name)
                         <span class="product-category-tag">{{ $product->category->category_name }}</span>
                     @endif
@@ -157,6 +168,8 @@
 
                                 <button type="submit" class="btn btn-primary">Submit review</button>
                             </form>
+                        @elseif (auth()->user()->customer && ($canCommentOnReviews ?? false))
+                            <p class="text-secondary review-note">You have already reviewed this product for each of your purchases. Buy it again to leave another review.</p>
                         @elseif (auth()->user()->customer)
                             <p class="text-secondary review-note">Purchase this product once to leave a review and comment on others.</p>
                         @else
@@ -206,7 +219,7 @@
                                     @endif
 
                                     @auth
-                                        @if ($canReview)
+                                        @if ($canCommentOnReviews ?? false)
                                             <form method="post" action="{{ route('reviews.comments.store', $review->review_id) }}" class="review-comment-form">
                                                 @csrf
                                                 <label for="comment-{{ $review->review_id }}" class="sr-only">Comment on this review</label>

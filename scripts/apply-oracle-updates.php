@@ -102,6 +102,15 @@ if (! tableExists($conn, 'REVIEW_COMMENT')) {
     echo "  skip REVIEW_COMMENT (already exists)\n";
 }
 
+echo "\n5) Trader approval status\n";
+addColumn($conn, 'TRADER', 'APPROVAL_STATUS', "VARCHAR2(20) DEFAULT 'APPROVED' NOT NULL");
+if (columnExists($conn, 'TRADER', 'APPROVAL_STATUS')) {
+    $approved = $conn->update(
+        "UPDATE trader SET approval_status = 'APPROVED' WHERE UPPER(NVL(approval_status, 'PENDING')) <> 'APPROVED'"
+    );
+    echo "  set APPROVED on {$approved} trader(s) that were not approved\n";
+}
+
 $conn->statement('COMMIT');
 
 echo "\nDone. All changes committed.\n";

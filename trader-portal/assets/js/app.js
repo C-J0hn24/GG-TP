@@ -416,6 +416,7 @@
         st.value = statusVal;
       }
       syncTags();
+      syncPendingFilesToInput();
       var fd = new FormData(form);
       var action = form.getAttribute("action") || "";
       var csrfMeta = qs('meta[name="csrf-token"]');

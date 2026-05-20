@@ -72,11 +72,42 @@ function product_set_images_on_description(string $displayText, ?string $existin
 }
 
 /**
+ * Normalize $_FILES entry for single or multiple uploads.
+ *
+ * @return array{name: list<string>, type: list<string>, tmp_name: list<string>, error: list<int>, size: list<int>}|null
+ */
+function product_normalize_files_input(array $filesInput): ?array
+{
+    if (empty($filesInput['name'])) {
+        return null;
+    }
+
+    if (!is_array($filesInput['name'])) {
+        return [
+            'name' => [(string) $filesInput['name']],
+            'type' => [(string) ($filesInput['type'] ?? '')],
+            'tmp_name' => [(string) ($filesInput['tmp_name'] ?? '')],
+            'error' => [(int) ($filesInput['error'] ?? UPLOAD_ERR_NO_FILE)],
+            'size' => [(int) ($filesInput['size'] ?? 0)],
+        ];
+    }
+
+    return [
+        'name' => array_map('strval', $filesInput['name']),
+        'type' => array_map('strval', $filesInput['type'] ?? []),
+        'tmp_name' => array_map('strval', $filesInput['tmp_name'] ?? []),
+        'error' => array_map('intval', $filesInput['error'] ?? []),
+        'size' => array_map('intval', $filesInput['size'] ?? []),
+    ];
+}
+
+/**
  * @return list<string> Newly saved basenames
  */
 function product_process_image_uploads(string $shopId, string $productId, array $filesInput): array
 {
-    if (empty($filesInput['name']) || !is_array($filesInput['name'])) {
+    $filesInput = product_normalize_files_input($filesInput);
+    if ($filesInput === null) {
         return [];
     }
 

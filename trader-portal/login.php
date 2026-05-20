@@ -31,11 +31,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             if ($ok === 'unverified') {
                 portal_redirect('/verify-email.php?email=' . rawurlencode($email));
             }
+            if ($ok === 'pending_approval') {
+                $error = 'Your trader account is waiting for admin approval. You will be able to sign in once an administrator approves your shop.';
+            }
             if ($ok === true) {
                 portal_redirect('/trader/dashboard.php');
             }
             if ($error === '') {
-                $error = 'Invalid credentials, inactive account, or trader approval pending.';
+                $error = 'Invalid credentials or inactive account.';
             }
         }
     }
@@ -51,7 +54,15 @@ require_once __DIR__ . '/includes/header.php';
           <p class="text-secondary">Sign in to manage your shop, products, and orders.</p>
         </header>
         <?php if ($flash): ?>
-            <div class="alert" style="background:#ecfdf5;color:#166534;padding:12px;border-radius:8px;margin-bottom:12px;"><?= h((string) $flash['message']) ?></div>
+            <?php
+                $flashType = (string) ($flash['type'] ?? 'success');
+                $isPending = $flashType === 'pending';
+            ?>
+            <div class="alert<?= $isPending ? ' alert-pending' : '' ?>" style="<?= $isPending
+                ? 'background:#fffbeb;color:#92400e;border:1px solid #fcd34d;'
+                : 'background:#ecfdf5;color:#166534;' ?>padding:12px;border-radius:8px;margin-bottom:12px;">
+                <?= h((string) $flash['message']) ?>
+            </div>
         <?php endif; ?>
         <?php if ($error !== ''): ?>
             <div class="alert alert-error"><?= h($error) ?></div>

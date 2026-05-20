@@ -11,6 +11,7 @@ class ProductDiscount extends BaseOracleModel
     public $timestamps = false;
 
     protected $fillable = [
+        'product_discount_id',
         'product_id',
         'discount_id',
     ];

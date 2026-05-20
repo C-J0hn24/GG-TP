@@ -1580,6 +1580,30 @@ a.product-card:hover .product-name {
   margin: 10px 0 16px;
 }
 
+.product-price-was {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7280);
+  text-decoration: line-through;
+  margin-right: 0.35em;
+}
+
+.product-price-now {
+  font-weight: inherit;
+}
+
+.product-sale-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary-green-dark, #1a5c3a);
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
 .product-price-large {
   font-size: 1.65rem;
   font-weight: 800;

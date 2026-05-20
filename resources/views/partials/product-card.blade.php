@@ -5,6 +5,8 @@
     $category = $product['category'] ?? null;
     $name = $product['name'] ?? 'Product';
     $price = (float) ($product['price'] ?? 0);
+    $originalPrice = (float) ($product['original_price'] ?? $price);
+    $onSale = !empty($product['on_sale']);
     $stock = $product['stock'] ?? ['label' => 'In Stock', 'variant' => 'in'];
     $stockLabel = $stock['label'] ?? 'In Stock';
     $stockVariant = $stock['variant'] ?? 'in';
@@ -34,7 +36,10 @@
 
     <div class="product-bottom-row">
         <div class="product-price">
-            {{ \App\Support\Money::format($price) }}
+            @if ($onSale)
+                <span class="product-price-was">{{ \App\Support\Money::format($originalPrice) }}</span>
+            @endif
+            <span class="product-price-now">{{ \App\Support\Money::format($price) }}</span>
         </div>
         @include('partials.status-badge', ['label' => $stockLabel, 'variant' => $stockVariant])
     </div>

@@ -61,9 +61,13 @@ foreach ((array) ($_POST['keep_images'] ?? []) as $file) {
     }
 }
 
-$newUploads = !empty($_FILES['images'])
-    ? product_process_image_uploads($shopId, $pid, $_FILES['images'])
-    : [];
+$newUploads = [];
+if (!empty($_FILES['images'])) {
+    $newUploads = product_process_image_uploads($shopId, $pid, $_FILES['images']);
+    if ($newUploads === [] && product_normalize_files_input($_FILES['images']) !== null) {
+        json_response(['ok' => false, 'error' => 'Image upload failed. Use JPEG, PNG, WebP, or GIF under ' . (int) MAX_UPLOAD_MB . 'MB each.'], 422);
+    }
+}
 
 $allImages = array_values(array_merge($keep, $newUploads));
 $finalDesc = product_set_images_on_description($descText, $currentDesc, $allImages);

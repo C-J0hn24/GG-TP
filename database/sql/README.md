@@ -9,6 +9,7 @@ Recommended order:
 | 1 | `oracle-email-verification.sql` | `USERS` + `VERIFICATION` columns for OTP login |
 | 2 | `oracle-collection-slot.sql` | `COLLECTION_SLOT.PICKUP_LOCATION` |
 | 3 | `oracle-review-comments.sql` | `REVIEW` trader reply + `REVIEW_COMMENT` table |
+| 4 | `oracle-trader-approval.sql` | `TRADER.APPROVAL_STATUS` for trader portal login |
 
 **PHP alternative (idempotent):**
 

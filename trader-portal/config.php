@@ -12,6 +12,9 @@ define('PORTAL_BASE', '/GG-TP/trader-portal');
 
 define('PORTAL_DIAGNOSE_ENABLED', true);
 
+/** When false, PHP/OCI errors are logged only (not printed on pages). */
+define('PORTAL_DISPLAY_ERRORS', false);
+
 define('SESSION_NAME', 'GG_TRADER_PORTAL');
 
 define('MAX_UPLOAD_MB', 5);

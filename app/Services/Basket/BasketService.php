@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\User;
 use App\Support\OracleId;
+use App\Support\ProductPricing;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,7 @@ class BasketService
             ->first();
 
         if ($basket) {
-            return $basket->load('items.product');
+            return $basket->load(['items.product.discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q)]);
         }
 
         try {
@@ -38,7 +39,7 @@ class BasketService
                     ->first();
 
                 if ($existing) {
-                    return $existing->load('items.product');
+                    return $existing->load(['items.product.discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q)]);
                 }
             }
 
@@ -118,7 +119,7 @@ class BasketService
 
     public function summary(Basket $basket): array
     {
-        $basket->load('items.product');
+        $basket->load(['items.product.discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q)]);
 
         $lines = [];
         $total = 0.0;
@@ -129,7 +130,8 @@ class BasketService
                 continue;
             }
             $qty = (int) $item->quantity;
-            $unit = (float) $product->price;
+            $pricing = ProductPricing::pricePayload($product);
+            $unit = $pricing['unit'];
             $lineTotal = $unit * $qty;
             $total += $lineTotal;
 
@@ -138,6 +140,8 @@ class BasketService
                 'product_id' => $item->product_id,
                 'product_name' => $product->product_name,
                 'unit_price' => $unit,
+                'original_unit_price' => $pricing['original'],
+                'on_sale' => $pricing['on_sale'],
                 'quantity' => $qty,
                 'line_total' => $lineTotal,
             ];
@@ -163,6 +167,8 @@ class BasketService
 
     protected function hydrateBasket(string $basketId): Basket
     {
-        return Basket::query()->with('items.product')->findOrFail($basketId);
+        return Basket::query()
+            ->with(['items.product.discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q)])
+            ->findOrFail($basketId);
     }
 }

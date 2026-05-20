@@ -16,15 +16,43 @@ class ReviewService
      */
     public function hasPurchasedProduct(User $user, string $productId): bool
     {
+        return $this->purchaseCount($user, $productId) > 0;
+    }
+
+    /**
+     * Non-cancelled orders that include this product (each order = one review slot).
+     */
+    public function purchaseCount(User $user, string $productId): int
+    {
         if (! $user->customer) {
-            return false;
+            return 0;
         }
 
-        return Order::query()
+        return (int) Order::query()
             ->where('customer_id', $user->user_id)
             ->where('status', '!=', 'cancelled')
             ->whereHas('items', fn ($q) => $q->where('product_id', $productId))
-            ->exists();
+            ->count();
+    }
+
+    public function reviewCount(User $user, string $productId): int
+    {
+        if (! $user->customer) {
+            return 0;
+        }
+
+        return (int) Review::query()
+            ->where('customer_id', $user->customer->customer_id)
+            ->where('product_id', $productId)
+            ->count();
+    }
+
+    /**
+     * True when the customer still has an unreviewed purchase for this product.
+     */
+    public function canLeaveReview(User $user, string $productId): bool
+    {
+        return $this->reviewCount($user, $productId) < $this->purchaseCount($user, $productId);
     }
 
     public function create(User $user, array $data): Review
@@ -37,6 +65,12 @@ class ReviewService
         if (! $this->hasPurchasedProduct($user, $productId)) {
             throw ValidationException::withMessages([
                 'review' => 'You can leave a review after you have purchased this product at least once.',
+            ]);
+        }
+
+        if (! $this->canLeaveReview($user, $productId)) {
+            throw ValidationException::withMessages([
+                'review' => 'You have already reviewed this product for each of your purchases. Buy it again to leave another review.',
             ]);
         }
 
