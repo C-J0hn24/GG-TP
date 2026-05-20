@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\InvoiceWebController;
 use App\Http\Controllers\Web\OrderWebController;
 use App\Http\Controllers\Web\ProfileWebController;
 use App\Http\Controllers\Web\ReviewWebController;
+use App\Http\Controllers\PickupRfidController;
 use App\Services\Catalog\CatalogService;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,15 @@ Route::get('/', function (CatalogService $catalogService) {
         'homeCategoryCards' => $catalogService->homeCategoryCards(),
     ]);
 })->name('home');
+
+// Temporary timezone verification route. Remove after confirming correct app timezone and now() behavior.
+Route::get('/debug-timezone', function () {
+    return response()->json([
+        'app_timezone' => config('app.timezone'),
+        'now' => now()->toDateTimeString(),
+        'now_kathmandu' => now('Asia/Kathmandu')->toDateTimeString(),
+    ]);
+});
 
 Route::get('/contact', function () {
     return view('contact');
@@ -75,6 +85,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/products/{id}/reviews', [ReviewWebController::class, 'store'])->name('products.reviews.store');
     Route::post('/reviews/{reviewId}/comments', [ReviewWebController::class, 'storeComment'])->name('reviews.comments.store');
 });
+
+Route::get('/pickup-rfid', [PickupRfidController::class, 'show']);
 
 Route::redirect('/trader-portal', '/GG-TP/trader-portal/login.php', 302);
 Route::redirect('/trader-portal/', '/GG-TP/trader-portal/login.php', 302);

@@ -63,6 +63,12 @@ class AuthWebController extends Controller
                     ->route('verify-email', ['email' => $user->email])
                     ->withErrors(['email' => 'Please verify your email before logging in.']);
             }
+
+            if (strtoupper((string) ($user->account_status ?? 'ACTIVE')) !== 'ACTIVE') {
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['email' => 'Your account has been deactivated. Please contact support.']);
+            }
         }
 
         $user = $this->authService->attemptLogin(

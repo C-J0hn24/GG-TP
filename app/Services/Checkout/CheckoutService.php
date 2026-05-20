@@ -49,7 +49,7 @@ class CheckoutService
 
             $order = Order::create([
                 'order_id' => $orderId,
-                'order_date' => now(),
+                'order_date' => now('Asia/Kathmandu'),
                 'status' => 'placed',
                 'amount' => $summary['total'],
                 'customer_id' => $user->user_id,

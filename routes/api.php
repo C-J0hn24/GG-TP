@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\TraderDashboardController;
 use App\Http\Controllers\Api\TraderProductController;
+use App\Http\Controllers\PickupRfidController;
 use Illuminate\Support\Facades\Route;
 
 // Public auth endpoints
@@ -25,6 +26,7 @@ Route::prefix('auth')->group(function (): void {
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{productId}', [ProductController::class, 'show']);
+Route::post('/pickup-rfid/confirm', [PickupRfidController::class, 'confirm']);
 
 // Authenticated user endpoints
 Route::middleware(['auth'])->group(function (): void {
