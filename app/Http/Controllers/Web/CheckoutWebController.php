@@ -8,7 +8,9 @@ use App\Http\Requests\Checkout\PayPalCaptureRequest;
 use App\Http\Requests\Checkout\PayPalStartRequest;
 use App\Services\Basket\BasketService;
 use App\Services\Checkout\CheckoutService;
+use App\Services\Checkout\InvoiceEmailService;
 use App\Services\Checkout\PayPalService;
+use App\Support\AppUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +25,7 @@ class CheckoutWebController extends Controller
         protected CheckoutService $checkoutService,
         protected BasketService $basketService,
         protected PayPalService $payPalService,
+        protected InvoiceEmailService $invoiceEmailService,
     ) {
     }
 
@@ -203,32 +206,61 @@ class CheckoutWebController extends Controller
 
     protected function finishCheckoutAfterCapture(string $paypalOrderId, array $capture, array $checkoutPayload): RedirectResponse
     {
+        $captureId = $this->payPalService->extractCaptureId($capture);
+        if ($captureId !== '') {
+            $existingOrderId = Session::get('grocerygo_order_for_capture_'.$captureId);
+            if (is_string($existingOrderId) && $existingOrderId !== '') {
+                return $this->redirectAfterSuccessfulCheckout($existingOrderId, Auth::user());
+            }
+        }
+
         $payload = $checkoutPayload;
         $payload['payment_method'] = 'paypal';
         $payload['paypal_order_id'] = $paypalOrderId;
-        $payload['paypal_capture_id'] = $this->payPalService->extractCaptureId($capture);
+        $payload['paypal_capture_id'] = $captureId;
         $payload['paid_amount'] = $this->payPalService->extractCapturedAmount($capture);
 
         $result = $this->checkoutService->checkout(Auth::user(), $payload);
+        $orderId = (string) $result['order']->order_id;
 
-        session()->flash(
-            'invoice_payment_success',
-            'Payment successful! Your order has been placed and your invoice is ready below.'
-        );
+        if ($captureId !== '') {
+            Session::put('grocerygo_order_for_capture_'.$captureId, $orderId);
+        }
 
-        return redirect()->route('invoices.show', $result['order']->order_id);
+        return $this->redirectAfterSuccessfulCheckout($orderId, Auth::user(), $result['order']);
     }
 
     /** Fallback when PayPal is not used (local dev). */
     public function checkout(CheckoutRequest $request): RedirectResponse
     {
         $result = $this->checkoutService->checkout(Auth::user(), $request->validated());
+        $orderId = (string) $result['order']->order_id;
 
-        session()->flash(
-            'invoice_payment_success',
-            'Order placed successfully! Your invoice is ready below.'
-        );
+        return $this->redirectAfterSuccessfulCheckout($orderId, Auth::user(), $result['order']);
+    }
 
-        return redirect()->route('invoices.show', $result['order']->order_id);
+    protected function redirectAfterSuccessfulCheckout(
+        string $orderId,
+        \App\Models\User $user,
+        ?\App\Models\Order $order = null,
+    ): RedirectResponse {
+        $token = bin2hex(random_bytes(16));
+        Session::put([
+            'payment_success_order_id' => $orderId,
+            'payment_success_token' => $token,
+            'invoice_payment_success' => 'Payment successful! Thank you for your order.',
+        ]);
+
+        if ($order !== null) {
+            $emailNotice = $this->invoiceEmailService->sendForOrder($user, $order);
+            if ($emailNotice !== null) {
+                Session::put('payment_email_notice', $emailNotice);
+            }
+        }
+
+        return redirect()->away(AppUrl::paymentSuccessUrl([
+            'order_id' => $orderId,
+            'token' => $token,
+        ]));
     }
 }

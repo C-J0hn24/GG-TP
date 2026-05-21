@@ -83,6 +83,7 @@ function login_trader(string $email, string $password): bool|string
     require_once __DIR__ . '/verification.php';
 
     $sql = 'SELECT u.user_id, u.email, u.password, u.first_name, u.last_name,
+                   NVL(u.account_status, \'ACTIVE\') AS account_status,
                    t.trader_id,
                    NVL(t.approval_status, \'PENDING\') AS approval_status
             FROM users u
@@ -91,11 +92,13 @@ function login_trader(string $email, string $password): bool|string
     try {
         $row = db_fetch_one($sql, ['email' => $email]);
     } catch (Throwable $e) {
-        error_log('login_trader query: ' . $e->getMessage());
-
         return false;
     }
     if (!$row || ! portal_password_verify($password, (string) ($row['password'] ?? ''))) {
+        return false;
+    }
+
+    if (strtoupper((string) ($row['account_status'] ?? 'ACTIVE')) !== 'ACTIVE') {
         return false;
     }
 

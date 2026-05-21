@@ -103,6 +103,37 @@ function customer_flash_pull(string $key): ?string
     return is_string($value) && $value !== '' ? $value : null;
 }
 
+function customer_flash_put(string $key, string $value): void
+{
+    $session = customer_session();
+    if ($session !== null) {
+        $session->put($key, $value);
+    }
+}
+
+/**
+ * @return mixed|null
+ */
+function customer_session_get(string $key, mixed $default = null): mixed
+{
+    $session = customer_session();
+
+    return $session?->get($key, $default) ?? $default;
+}
+
+/**
+ * @return mixed|null
+ */
+function customer_session_pull(string $key, mixed $default = null): mixed
+{
+    $session = customer_session();
+    if ($session === null) {
+        return $default;
+    }
+
+    return $session->pull($key, $default);
+}
+
 function customer_require_auth(): User
 {
     $user = customer_auth_user();

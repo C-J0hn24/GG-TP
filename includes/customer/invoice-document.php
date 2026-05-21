@@ -72,7 +72,14 @@ $company = $company ?? $GLOBALS['CUSTOMER_COMPANY'] ?? [];
     <footer class="invoice-document-foot">
         <div class="invoice-dates">
             <p><strong>Pick Up Date:</strong> <?= customer_h((string) ($invoice['pickup_date'] ?? '—')) ?></p>
+            <?php if (!empty($invoice['pickup_time'])): ?>
+                <p><strong>Collection time:</strong> <?= customer_h((string) $invoice['pickup_time']) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($invoice['pickup_location'])): ?>
+                <p><strong>Pickup location:</strong> <?= customer_h((string) $invoice['pickup_location']) ?></p>
+            <?php endif; ?>
             <p><strong>Order Date:</strong> <?= customer_h((string) ($invoice['order_date'] ?? '—')) ?></p>
+            <p><strong>Payment method:</strong> <?= customer_h((string) ($invoice['payment_method'] ?? '—')) ?></p>
         </div>
         <div class="invoice-totals">
             <p><span>Discount:</span> <strong><?= customer_h(customer_money((float) ($invoice['discount'] ?? 0))) ?></strong></p>
@@ -83,3 +90,7 @@ $company = $company ?? $GLOBALS['CUSTOMER_COMPANY'] ?? [];
         </div>
     </footer>
 </section>
+
+<p class="invoice-back-link">
+    <button type="button" class="btn btn-outline invoice-export-btn" data-invoice-export>Print / Export</button>
+</p>
