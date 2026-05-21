@@ -8,7 +8,7 @@
     <p>Hello {{ $recipientName }},</p>
     <p>Your payment was successful and your GroceryGo order is confirmed.</p>
     <p><strong>Order ID:</strong> {{ $invoice['order_id'] ?? '' }}</p>
-    <p><strong>Total:</strong> £{{ number_format((float) ($invoice['total'] ?? 0), 2) }}</p>
+    <p><strong>Total:</strong> {{ config('shop.symbol', '$') }}{{ number_format((float) ($invoice['total'] ?? 0), 2) }}</p>
     <p><strong>Pickup date:</strong> {{ $invoice['pickup_date'] ?? '—' }}
         @if (!empty($invoice['pickup_time']))
             · {{ $invoice['pickup_time'] }}
@@ -19,7 +19,7 @@
         <p><strong>Items:</strong></p>
         <ul>
             @foreach ($invoice['lines'] as $line)
-                <li>{{ $line['product_name'] ?? 'Product' }} × {{ (int) ($line['quantity'] ?? 0) }} — £{{ number_format((float) ($line['line_total'] ?? 0), 2) }}</li>
+                <li>{{ $line['product_name'] ?? 'Product' }} × {{ (int) ($line['quantity'] ?? 0) }} — {{ config('shop.symbol', '$') }}{{ number_format((float) ($line['line_total'] ?? 0), 2) }}</li>
             @endforeach
         </ul>
     @endif

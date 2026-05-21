@@ -29,7 +29,7 @@ function customer_asset(string $path): string
 
 function customer_money(float $amount): string
 {
-    return '£' . number_format($amount, 2);
+    return CUSTOMER_CURRENCY_SYMBOL . number_format($amount, 2);
 }
 
 function customer_format_date(mixed $value): string

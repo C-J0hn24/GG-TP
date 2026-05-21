@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 $envFile = dirname(__DIR__, 2) . '/.env';
 $appBase = '/GG-TP';
+$currencySymbol = '$';
 if (is_readable($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
     foreach ($lines as $line) {
@@ -15,12 +16,17 @@ if (is_readable($envFile)) {
             if (is_string($path) && $path !== '' && $path !== '/') {
                 $appBase = rtrim($path, '/');
             }
-            break;
+            continue;
+        }
+        if (str_starts_with(trim($line), 'SHOP_CURRENCY_SYMBOL=')) {
+            $currencySymbol = trim(substr($line, 21), " \t\"'");
+            continue;
         }
     }
 }
 
 define('CUSTOMER_APP_BASE', $appBase);
+define('CUSTOMER_CURRENCY_SYMBOL', $currencySymbol);
 
 $CUSTOMER_COMPANY = [
     'name' => 'GroceryGo',
