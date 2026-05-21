@@ -45,8 +45,11 @@ class CatalogWebController extends Controller
     public function show(string $id): View
     {
         $product = $this->catalogService->productDetail($id);
-        $canReview = Auth::check()
-            && $this->reviewService->hasPurchasedProduct(Auth::user(), $id);
+        $user = Auth::user();
+        $canReview = $user
+            && $this->reviewService->canLeaveReview($user, $id);
+        $canCommentOnReviews = $user
+            && $this->reviewService->hasPurchasedProduct($user, $id);
 
         $similarProducts = $this->catalogService
             ->similarProducts($product)
@@ -56,6 +59,7 @@ class CatalogWebController extends Controller
             'product' => $product,
             'productId' => $id,
             'canReview' => $canReview,
+            'canCommentOnReviews' => $canCommentOnReviews,
             'similarProducts' => $similarProducts,
         ]);
     }

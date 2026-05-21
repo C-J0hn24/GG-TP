@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/verification.php';
+require_once __DIR__ . '/includes/trader-approval.php';
 
 if (auth_user()) {
     portal_redirect('/trader/dashboard.php');
@@ -36,7 +37,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         } else {
             try {
                 portal_verify_signup_code($email, $code);
-                flash_set('success', 'Email verified. You can sign in now.');
+                flash_set('pending', portal_trader_pending_approval_message());
                 portal_redirect('/login.php');
             } catch (Throwable $e) {
                 $error = $e->getMessage();
@@ -52,7 +53,7 @@ require_once __DIR__ . '/includes/header.php';
       <article class="card auth-card" style="max-width:480px;margin-left:auto;margin-right:auto;">
         <header class="auth-header">
           <h1>Verify your email</h1>
-          <p class="text-secondary">Enter the 6-digit code we sent to your inbox.</p>
+          <p class="text-secondary">Enter the 6-digit code we sent to your inbox. After verification, an administrator must approve your trader account before you can sign in.</p>
         </header>
         <?php if ($status !== ''): ?>
             <div class="alert" style="background:#ecfdf5;color:#166534;padding:12px;border-radius:8px;margin-bottom:12px;"><?= h($status) ?></div>

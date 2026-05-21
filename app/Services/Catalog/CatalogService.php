@@ -5,6 +5,7 @@ namespace App\Services\Catalog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\ProductMeta;
+use App\Support\ProductPricing;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +56,7 @@ class CatalogService
     public function products(array $filters)
     {
         $query = Product::query()
-            ->with(['shop', 'category'])
+            ->with(['shop', 'category', 'discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q)])
             ->withAvg('reviews', 'rating');
 
         $this->applyCustomerVisibility($query);
@@ -72,7 +73,7 @@ class CatalogService
             ->with([
                 'shop.trader.user',
                 'category',
-                'discounts',
+                'discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q),
                 'reviews' => fn ($q) => $q->orderByDesc('review_date'),
                 'reviews.customer.user',
                 'reviews.comments.customer.user',
@@ -89,7 +90,7 @@ class CatalogService
     public function similarProducts(Product $product, int $limit = 6): Collection
     {
         $base = Product::query()
-            ->with(['shop', 'category'])
+            ->with(['shop', 'category', 'discounts' => fn ($q) => ProductPricing::scopeActiveDiscounts($q)])
             ->withAvg('reviews', 'rating')
             ->where('product_id', '!=', $product->product_id);
 
@@ -138,6 +139,8 @@ class CatalogService
         $uploadedImage = ProductMeta::primaryImageUrl($p->shop_id, $p->description);
         $displayImage = $p->customerPrimaryImageUrl();
 
+        $pricing = ProductPricing::pricePayload($p);
+
         return [
             'id' => $p->product_id,
             'trader' => $p->shop->shop_name ?? 'Shop',
@@ -145,7 +148,10 @@ class CatalogService
             'name' => $p->product_name,
             'image' => $displayImage,
             'image_placeholder' => $uploadedImage === null && $displayImage !== null,
-            'price' => (float) $p->price,
+            'price' => $pricing['unit'],
+            'original_price' => $pricing['original'],
+            'on_sale' => $pricing['on_sale'],
+            'discount_rate' => $pricing['rate'],
             'stock' => [
                 'label' => $stock <= 0 ? 'Out of Stock' : ($stock <= 5 ? 'Low Stock' : 'In Stock'),
                 'variant' => $stock <= 0 ? 'out' : ($stock <= 5 ? 'low' : 'in'),

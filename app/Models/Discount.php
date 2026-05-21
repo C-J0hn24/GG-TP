@@ -12,6 +12,7 @@ class Discount extends BaseOracleModel
     public $timestamps = false;
 
     protected $fillable = [
+        'discount_id',
         'rate',
         'start_date',
         'end_date',

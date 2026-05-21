@@ -94,6 +94,9 @@ try {
 
     if (!empty($_FILES['images'])) {
         $names = product_process_image_uploads($shopId, $newId, $_FILES['images']);
+        if ($names === [] && product_normalize_files_input($_FILES['images']) !== null) {
+            throw new RuntimeException('Image upload failed. Use JPEG, PNG, WebP, or GIF under ' . (int) MAX_UPLOAD_MB . 'MB each.');
+        }
         if ($names !== []) {
             $fullDesc = product_set_images_on_description(
                 product_display_description($fullDesc),
@@ -104,9 +107,11 @@ try {
                 'UPDATE product SET description = :d WHERE product_id = :pid AND shop_id = :sid',
                 ['d' => $fullDesc, 'pid' => $newId, 'sid' => $shopId]
             );
-            if ($st2) {
-                oci_free_statement($st2);
+            if (!$st2) {
+                $e = oci_error();
+                throw new RuntimeException($e['message'] ?? 'Could not save product images.');
             }
+            oci_free_statement($st2);
         }
     }
 

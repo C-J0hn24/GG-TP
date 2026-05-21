@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/verification.php';
+require_once __DIR__ . '/includes/trader-approval.php';
 
 if (auth_user()) {
     portal_redirect('/trader/dashboard.php');
@@ -56,13 +57,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                         oci_free_statement($st);
                     }
 
-                    $st = db_execute(
-                        'INSERT INTO trader (trader_id, admin_id) VALUES (:tid, :aid)',
-                        ['tid' => $userId, 'aid' => $adminId]
-                    );
-                    if ($st) {
-                        oci_free_statement($st);
-                    }
+                    portal_trader_insert_row($userId, $adminId);
 
                     $st = db_execute(
                         'INSERT INTO shop (shop_id, shop_name, location, trader_id, contact_info)

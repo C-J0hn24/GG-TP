@@ -45,7 +45,7 @@ function db_normalize_row(array $row): array
 function db_execute(string $sql, array $binds = [])
 {
     $conn = db_conn();
-    $st = oci_parse($conn, $sql);
+    $st = @oci_parse($conn, $sql);
     if (!$st) {
         return false;
     }
@@ -59,7 +59,8 @@ function db_execute(string $sql, array $binds = [])
     }
     unset($val);
 
-    if (!oci_execute($st, OCI_NO_AUTO_COMMIT)) {
+    // Suppress PHP warnings; callers check return value and oci_error().
+    if (@oci_execute($st, OCI_NO_AUTO_COMMIT) === false) {
         return false;
     }
     return $st;
@@ -72,7 +73,7 @@ function db_fetch_all(string $sql, array $binds = []): array
 {
     $st = db_execute($sql, $binds);
     if (!$st) {
-        $e = oci_error();
+        $e = oci_error($st) ?: oci_error($conn);
         throw new RuntimeException($e['message'] ?? 'Query failed');
     }
     oci_fetch_all($st, $rows, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);

@@ -6,6 +6,7 @@ use App\Models\Discount;
 use App\Models\Product;
 use App\Models\ProductDiscount;
 use App\Models\User;
+use App\Support\OracleId;
 use Illuminate\Support\Facades\DB;
 
 class DiscountService
@@ -20,12 +21,14 @@ class DiscountService
 
         return DB::connection('oracle')->transaction(function () use ($data, $product) {
             $discount = Discount::create([
+                'discount_id' => OracleId::next('DISCOUNT', 'discount_id', 'D'),
                 'rate' => $data['rate'],
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
             ]);
 
             $link = ProductDiscount::create([
+                'product_discount_id' => OracleId::next('PRODUCT_DISCOUNT', 'product_discount_id', 'PD'),
                 'product_id' => $product->product_id,
                 'discount_id' => $discount->discount_id,
             ]);
