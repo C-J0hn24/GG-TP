@@ -53,4 +53,28 @@ final class AppUrl
 
         return $url;
     }
+
+    /**
+     * Live Oracle trader portal (project root trader-portal/, not public mock).
+     */
+    public static function traderPortal(string $path = 'login.php'): string
+    {
+        $base = rtrim((string) config('app.url'), '/');
+
+        return $base.'/trader-portal/'.ltrim($path, '/');
+    }
+
+    /**
+     * @param  array<string, scalar|null>  $query
+     */
+    public static function paymentSuccessUrl(array $query = []): string
+    {
+        $base = rtrim((string) config('app.url'), '/');
+        $url = ($base !== '' ? $base : '').'/payment-success.php';
+        if ($query !== []) {
+            $url .= '?'.http_build_query($query);
+        }
+
+        return $url;
+    }
 }

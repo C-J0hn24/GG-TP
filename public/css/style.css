@@ -3214,6 +3214,95 @@ a.product-card:hover .product-name {
   border: 1.5px solid #d1d5db;
 }
 
+/* Payment success (payment-success.php) */
+.payment-success-page {
+  padding-top: 8px;
+}
+
+.payment-success-card {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 28px;
+  text-align: center;
+  border: 1.5px solid #d1d5db;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(4, 120, 87, 0.1);
+  background: #fffef5;
+}
+
+.payment-success-card--error {
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.payment-success-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #fff;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 72px;
+}
+
+.payment-success-title {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  color: var(--primary-green-dark);
+}
+
+.payment-success-lead {
+  margin: 0 0 20px;
+  color: var(--text-secondary, #4b5563);
+  font-size: 1.05rem;
+}
+
+.payment-success-meta {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0 28px;
+  text-align: left;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.payment-success-meta div {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.payment-success-meta dt {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary, #6b7280);
+}
+
+.payment-success-meta dd {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+.payment-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.payment-success-email-note {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #6b7280);
+}
+
 .invoice-success-banner {
   margin-bottom: 20px;
   padding: 16px 20px;
