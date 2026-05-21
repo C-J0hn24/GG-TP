@@ -127,6 +127,8 @@ function invoice_build(string $customerId, string $orderId): ?array
     $first = trim((string) ($header['first_name'] ?? ''));
     $last = trim((string) ($header['last_name'] ?? ''));
 
+    $paymentMethod = trim((string) ($header['payment_method'] ?? ''));
+
     return [
         'invoice_id' => $orderId,
         'order_id' => $orderId,
@@ -140,8 +142,32 @@ function invoice_build(string $customerId, string $orderId): ?array
         'subtotal' => $subtotal,
         'discount' => $discount,
         'total' => $total,
+        'paid_amount' => (float) ($header['paid_amount'] ?? $total),
+        'payment_method' => $paymentMethod !== '' ? $paymentMethod : '—',
         'payment_status' => $status !== '' ? ucfirst($status) : 'Pending',
         'is_paid' => in_array($status, ['paid', 'completed'], true),
         'lines' => $lines,
     ];
+}
+
+/**
+ * Order header for payment-success page (customer must own the order).
+ *
+ * @return array<string, mixed>|null
+ */
+function invoice_fetch_payment_summary(string $customerId, string $orderId): ?array
+{
+    $header = invoice_fetch_order_header($customerId, $orderId);
+    if ($header === null) {
+        return null;
+    }
+
+    $invoice = invoice_build($customerId, $orderId);
+    if ($invoice === null) {
+        return null;
+    }
+
+    return array_merge($invoice, [
+        'order_date_raw' => $header['order_date'] ?? null,
+    ]);
 }

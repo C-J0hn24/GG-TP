@@ -83,7 +83,7 @@ class AuthWebController extends Controller
         }
 
         if ($user->role === 'trader') {
-            return redirect('/GG-TP/trader-portal/trader/dashboard.php');
+            return redirect()->away(AppUrl::traderPortal('trader/dashboard.php'));
         }
 
         try {

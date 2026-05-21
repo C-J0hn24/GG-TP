@@ -114,7 +114,7 @@ require __DIR__ . '/includes/customer/header.php';
                 <input type="hidden" name="order_id" value="<?= customer_h($orderId) ?>">
             <?php endif; ?>
             <button type="submit" class="btn btn-primary">Search</button>
-            <button type="button" class="btn btn-outline invoice-export-btn" id="invoice-export-btn" data-invoice-export>Export</button>
+            <button type="button" class="btn btn-outline invoice-export-btn" id="invoice-export-btn" data-invoice-export>Print / Export</button>
         </form>
 
         <?php if ($invoice === null && !$errorMessage): ?>

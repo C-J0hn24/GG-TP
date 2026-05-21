@@ -88,5 +88,5 @@ Route::middleware('auth')->group(function (): void {
 
 Route::get('/pickup-rfid', [PickupRfidController::class, 'show']);
 
-Route::redirect('/trader-portal', '/GG-TP/trader-portal/login.php', 302);
-Route::redirect('/trader-portal/', '/GG-TP/trader-portal/login.php', 302);
+Route::redirect('/trader-portal', App\Support\AppUrl::traderPortal('login.php'), 302);
+Route::redirect('/trader-portal/', App\Support\AppUrl::traderPortal('login.php'), 302);
